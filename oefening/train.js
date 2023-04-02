@@ -14,15 +14,15 @@ function loadData() {
 
 function checkData(data){
   // data voorbereiden
-  data.sort(() => (Math.random() - 0.5))
-  let trainData = data.slice(0, Math.floor(data.length * 0.8))
-  let testData = data.slice(Math.floor(data.length * 0.8) + 1)
+  // data.sort(() => (Math.random() - 0.5))
+  // let trainData = data.slice(0, Math.floor(data.length * 0.8))
+  // let testData = data.slice(Math.floor(data.length * 0.8) + 1)
 
   // neural network aanmaken
   nn = ml5.neuralNetwork({ task: 'regression', debug: true })
 
   // data toevoegen aan neural network
-  for(let phone of trainData){
+  for(let phone of data){
       nn.addData({ resoloution: phone.resoloution,
         ppi: phone.ppi,
         cores: phone.cores,
@@ -46,27 +46,34 @@ function startTraining() {
 }
 
 async function finishedTraining() {
+  //save model
+  nn.save()
   console.log("Finished training!")
   // make prediction
-  await makePrediction()
+  //await makePrediction()
+  let result= await nn.predict({ppi:15,cores:3,memory:3, 
+    storage:2,rearcam:5,frontcam:9,battery:5555,
+    thickness:4, resoloution:5
+  })
+  console.log(result[0].price)
 }
 
-async function makePrediction() {
-  let input = document.getElementById("field").value
-  let battery = Number(input)
+// async function makePrediction() {
+//   let input = document.getElementById("field").value
+//   let battery = Number(input)
 
-  if (isNaN(battery)) {
-    document.getElementById("result").innerHTML = "Ongeldige invoer!"
-    return
-  }
+//   if (isNaN(battery)) {
+//     document.getElementById("result").innerHTML = "Ongeldige invoer!"
+//     return
+//   }
 
-  let results = await nn.predict({ battery: battery })
-  console.log(`Geschat prijs: ${results[0].price}`)
-  document.getElementById("result").innerHTML = `Geschat prijs: ${results[0].price}`
+//   let results = await nn.predict({ battery: battery })
+//   console.log(`Geschat prijs: ${results[0].price}`)
+//   document.getElementById("result").innerHTML = `Geschat prijs: ${results[0].price}`
 
-  // update chart with prediction
-  updateChart([{ x: battery, y: results[0].price }])
-}
+//   // update chart with prediction
+//   updateChart([{ x: battery, y: results[0].price }])
+// }
 
 loadData()
-document.getElementById("btn").addEventListener("click", makePrediction)
+
